@@ -27,7 +27,7 @@ import type {
   OnEvent,
 } from "../common";
 
-export interface GuildActionInterface extends utils.Interface {
+export interface GuildActionV2Interface extends utils.Interface {
   functions: {
     "DEFAULT_ADMIN_ROLE()": FunctionFragment;
     "GUILD_PRESALE_PRICE()": FunctionFragment;
@@ -38,6 +38,7 @@ export interface GuildActionInterface extends utils.Interface {
     "getRoleAdmin(bytes32)": FunctionFragment;
     "getRoleMember(bytes32,uint256)": FunctionFragment;
     "getRoleMemberCount(bytes32)": FunctionFragment;
+    "getValue()": FunctionFragment;
     "grantRole(bytes32,address)": FunctionFragment;
     "guild()": FunctionFragment;
     "guildMemberList(uint256)": FunctionFragment;
@@ -79,6 +80,7 @@ export interface GuildActionInterface extends utils.Interface {
       | "getRoleAdmin"
       | "getRoleMember"
       | "getRoleMemberCount"
+      | "getValue"
       | "grantRole"
       | "guild"
       | "guildMemberList"
@@ -142,6 +144,7 @@ export interface GuildActionInterface extends utils.Interface {
     functionFragment: "getRoleMemberCount",
     values: [BytesLike]
   ): string;
+  encodeFunctionData(functionFragment: "getValue", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "grantRole",
     values: [BytesLike, string]
@@ -267,6 +270,7 @@ export interface GuildActionInterface extends utils.Interface {
     functionFragment: "getRoleMemberCount",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "getValue", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "guild", data: BytesLike): Result;
   decodeFunctionResult(
@@ -340,8 +344,8 @@ export interface GuildActionInterface extends utils.Interface {
 
   events: {
     "CreateGuild(uint256,address,string)": EventFragment;
-    "JoinGuildEvent(uint256,uint256,uint256)": EventFragment;
-    "LeaveGuildEvent(uint256,uint256,uint256)": EventFragment;
+    "JoinGuild(uint256,uint256,uint256)": EventFragment;
+    "LeaveGuild(uint256,uint256,uint256)": EventFragment;
     "Paused(address)": EventFragment;
     "RoleAdminChanged(bytes32,bytes32,bytes32)": EventFragment;
     "RoleGranted(bytes32,address,address)": EventFragment;
@@ -350,8 +354,8 @@ export interface GuildActionInterface extends utils.Interface {
   };
 
   getEvent(nameOrSignatureOrTopic: "CreateGuild"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "JoinGuildEvent"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "LeaveGuildEvent"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "JoinGuild"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "LeaveGuild"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
@@ -360,7 +364,7 @@ export interface GuildActionInterface extends utils.Interface {
 }
 
 export interface CreateGuildEventObject {
-  guildId: BigNumber;
+  tokenId: BigNumber;
   to: string;
   name: string;
 }
@@ -371,29 +375,29 @@ export type CreateGuildEvent = TypedEvent<
 
 export type CreateGuildEventFilter = TypedEventFilter<CreateGuildEvent>;
 
-export interface JoinGuildEventEventObject {
+export interface JoinGuildEventObject {
   profileId: BigNumber;
   guildId: BigNumber;
   joinAt: BigNumber;
 }
-export type JoinGuildEventEvent = TypedEvent<
+export type JoinGuildEvent = TypedEvent<
   [BigNumber, BigNumber, BigNumber],
-  JoinGuildEventEventObject
+  JoinGuildEventObject
 >;
 
-export type JoinGuildEventEventFilter = TypedEventFilter<JoinGuildEventEvent>;
+export type JoinGuildEventFilter = TypedEventFilter<JoinGuildEvent>;
 
-export interface LeaveGuildEventEventObject {
+export interface LeaveGuildEventObject {
   profileId: BigNumber;
   guildId: BigNumber;
   leaveAt: BigNumber;
 }
-export type LeaveGuildEventEvent = TypedEvent<
+export type LeaveGuildEvent = TypedEvent<
   [BigNumber, BigNumber, BigNumber],
-  LeaveGuildEventEventObject
+  LeaveGuildEventObject
 >;
 
-export type LeaveGuildEventEventFilter = TypedEventFilter<LeaveGuildEventEvent>;
+export type LeaveGuildEventFilter = TypedEventFilter<LeaveGuildEvent>;
 
 export interface PausedEventObject {
   account: string;
@@ -446,12 +450,12 @@ export type UnpausedEvent = TypedEvent<[string], UnpausedEventObject>;
 
 export type UnpausedEventFilter = TypedEventFilter<UnpausedEvent>;
 
-export interface GuildAction extends BaseContract {
+export interface GuildActionV2 extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: GuildActionInterface;
+  interface: GuildActionV2Interface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -500,6 +504,8 @@ export interface GuildAction extends BaseContract {
       role: BytesLike,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
+
+    getValue(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     grantRole(
       role: BytesLike,
@@ -662,6 +668,8 @@ export interface GuildAction extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  getValue(overrides?: CallOverrides): Promise<BigNumber>;
+
   grantRole(
     role: BytesLike,
     account: string,
@@ -817,6 +825,8 @@ export interface GuildAction extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getValue(overrides?: CallOverrides): Promise<BigNumber>;
+
     grantRole(
       role: BytesLike,
       account: string,
@@ -940,37 +950,37 @@ export interface GuildAction extends BaseContract {
 
   filters: {
     "CreateGuild(uint256,address,string)"(
-      guildId?: BigNumberish | null,
+      tokenId?: BigNumberish | null,
       to?: string | null,
       name?: null
     ): CreateGuildEventFilter;
     CreateGuild(
-      guildId?: BigNumberish | null,
+      tokenId?: BigNumberish | null,
       to?: string | null,
       name?: null
     ): CreateGuildEventFilter;
 
-    "JoinGuildEvent(uint256,uint256,uint256)"(
+    "JoinGuild(uint256,uint256,uint256)"(
       profileId?: BigNumberish | null,
       guildId?: BigNumberish | null,
       joinAt?: null
-    ): JoinGuildEventEventFilter;
-    JoinGuildEvent(
+    ): JoinGuildEventFilter;
+    JoinGuild(
       profileId?: BigNumberish | null,
       guildId?: BigNumberish | null,
       joinAt?: null
-    ): JoinGuildEventEventFilter;
+    ): JoinGuildEventFilter;
 
-    "LeaveGuildEvent(uint256,uint256,uint256)"(
+    "LeaveGuild(uint256,uint256,uint256)"(
       profileId?: BigNumberish | null,
       guildId?: BigNumberish | null,
       leaveAt?: null
-    ): LeaveGuildEventEventFilter;
-    LeaveGuildEvent(
+    ): LeaveGuildEventFilter;
+    LeaveGuild(
       profileId?: BigNumberish | null,
       guildId?: BigNumberish | null,
       leaveAt?: null
-    ): LeaveGuildEventEventFilter;
+    ): LeaveGuildEventFilter;
 
     "Paused(address)"(account?: null): PausedEventFilter;
     Paused(account?: null): PausedEventFilter;
@@ -1043,6 +1053,8 @@ export interface GuildAction extends BaseContract {
       role: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    getValue(overrides?: CallOverrides): Promise<BigNumber>;
 
     grantRole(
       role: BytesLike,
@@ -1205,6 +1217,8 @@ export interface GuildAction extends BaseContract {
       role: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    getValue(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     grantRole(
       role: BytesLike,

@@ -5,16 +5,9 @@ import "./GM.sol";
 contract Profile is GM {
     uint256 public currentProfileId;
     mapping(address => uint256) public profileIds;
-    mapping(uint256 => GuildStatus) public profileGuild;
 
-    event ProfileCreated(address indexed _from, uint256 indexed _profileId);
-    event ProfileTransfer(address indexed _from, address indexed _to, uint256 indexed _profileId);
-
-    struct GuildStatus {
-        uint256 guildId; /** 1-40 */
-        uint256 joinAt;
-        uint256 leaveAt;
-    }
+    event ProfileCreated(address indexed from, uint256 indexed profileId);
+    event ProfileTransfer(address indexed from, address indexed to, uint256 indexed profileId);
 
     function initialize(address _adminAddress) public initializer {
         GM.init(_adminAddress);
@@ -22,10 +15,6 @@ contract Profile is GM {
 
     function profileExist(address _addr) public view returns (bool isExist) {
         return profileIds[_addr] == 0 ? false : true;
-    }
-
-    function hasGuild(uint256 _profileId) internal view returns (bool result) {
-        result = profileGuild[_profileId].joinAt == 0 ? true : false;
     }
 
     function createProfile() external {
@@ -37,12 +26,6 @@ contract Profile is GM {
 
     function profileId(address _addr) public view returns (uint256 _profileId) {
         _profileId = profileIds[_addr];
-    }
-
-    function joinGuild(uint256 _guildId) internal {
-        GuildStatus storage pg = profileGuild[profileId(msg.sender)];
-        pg.guildId = _guildId;
-        pg.joinAt = block.timestamp;
     }
 
     /** profile transfer (emergency) */

@@ -15,8 +15,6 @@ import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 
 contract PieceAction is PausableUpgradeable, ReentrancyGuardUpgradeable, GM, Random, OwnableUpgradeable {
-    error MaximumMintSupplyReached();
-    error AmountNotMatched();
     using SafeMathUpgradeable for uint256;
     uint256 public currentTokenId;
     address public pieceAddress;
@@ -102,8 +100,8 @@ contract PieceAction is PausableUpgradeable, ReentrancyGuardUpgradeable, GM, Ran
     }
 
     function mintBatch(uint256 count) external payable whenNotPaused {
-        if (currentTokenId + count > MAX_TOKEN_ID) revert MaximumMintSupplyReached();
-        if (count * mintPrice != msg.value) revert AmountNotMatched();
+        require(currentTokenId + count < MAX_TOKEN_ID, "maximum supply reach");
+        require(count * mintPrice == msg.value, "amount not match");
         require(count <= 10, "maximum count exceeded");
         for (uint256 i = 0; i < count; i++) {
             currentTokenId++;

@@ -41,7 +41,6 @@ export interface ProfileInterface extends utils.Interface {
     "init(address)": FunctionFragment;
     "initialize(address)": FunctionFragment;
     "profileExist(address)": FunctionFragment;
-    "profileGuild(uint256)": FunctionFragment;
     "profileId(address)": FunctionFragment;
     "profileIds(address)": FunctionFragment;
     "renounceRole(bytes32,address)": FunctionFragment;
@@ -64,7 +63,6 @@ export interface ProfileInterface extends utils.Interface {
       | "init"
       | "initialize"
       | "profileExist"
-      | "profileGuild"
       | "profileId"
       | "profileIds"
       | "renounceRole"
@@ -117,10 +115,6 @@ export interface ProfileInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "profileExist",
     values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "profileGuild",
-    values: [BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "profileId", values: [string]): string;
   encodeFunctionData(functionFragment: "profileIds", values: [string]): string;
@@ -177,10 +171,6 @@ export interface ProfileInterface extends utils.Interface {
     functionFragment: "profileExist",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "profileGuild",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "profileId", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "profileIds", data: BytesLike): Result;
   decodeFunctionResult(
@@ -209,8 +199,8 @@ export interface ProfileInterface extends utils.Interface {
 }
 
 export interface ProfileCreatedEventObject {
-  _from: string;
-  _profileId: BigNumber;
+  from: string;
+  profileId: BigNumber;
 }
 export type ProfileCreatedEvent = TypedEvent<
   [string, BigNumber],
@@ -220,9 +210,9 @@ export type ProfileCreatedEvent = TypedEvent<
 export type ProfileCreatedEventFilter = TypedEventFilter<ProfileCreatedEvent>;
 
 export interface ProfileTransferEventObject {
-  _from: string;
-  _to: string;
-  _profileId: BigNumber;
+  from: string;
+  to: string;
+  profileId: BigNumber;
 }
 export type ProfileTransferEvent = TypedEvent<
   [string, string, BigNumber],
@@ -352,17 +342,6 @@ export interface Profile extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean] & { isExist: boolean }>;
 
-    profileGuild(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber] & {
-        guildId: BigNumber;
-        joinAt: BigNumber;
-        leaveAt: BigNumber;
-      }
-    >;
-
     profileId(
       _addr: string,
       overrides?: CallOverrides
@@ -442,17 +421,6 @@ export interface Profile extends BaseContract {
 
   profileExist(_addr: string, overrides?: CallOverrides): Promise<boolean>;
 
-  profileGuild(
-    arg0: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber, BigNumber] & {
-      guildId: BigNumber;
-      joinAt: BigNumber;
-      leaveAt: BigNumber;
-    }
-  >;
-
   profileId(_addr: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   profileIds(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -521,17 +489,6 @@ export interface Profile extends BaseContract {
 
     profileExist(_addr: string, overrides?: CallOverrides): Promise<boolean>;
 
-    profileGuild(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber] & {
-        guildId: BigNumber;
-        joinAt: BigNumber;
-        leaveAt: BigNumber;
-      }
-    >;
-
     profileId(_addr: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     profileIds(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -556,23 +513,23 @@ export interface Profile extends BaseContract {
 
   filters: {
     "ProfileCreated(address,uint256)"(
-      _from?: string | null,
-      _profileId?: BigNumberish | null
+      from?: string | null,
+      profileId?: BigNumberish | null
     ): ProfileCreatedEventFilter;
     ProfileCreated(
-      _from?: string | null,
-      _profileId?: BigNumberish | null
+      from?: string | null,
+      profileId?: BigNumberish | null
     ): ProfileCreatedEventFilter;
 
     "ProfileTransfer(address,address,uint256)"(
-      _from?: string | null,
-      _to?: string | null,
-      _profileId?: BigNumberish | null
+      from?: string | null,
+      to?: string | null,
+      profileId?: BigNumberish | null
     ): ProfileTransferEventFilter;
     ProfileTransfer(
-      _from?: string | null,
-      _to?: string | null,
-      _profileId?: BigNumberish | null
+      from?: string | null,
+      to?: string | null,
+      profileId?: BigNumberish | null
     ): ProfileTransferEventFilter;
 
     "RoleAdminChanged(bytes32,bytes32,bytes32)"(
@@ -667,11 +624,6 @@ export interface Profile extends BaseContract {
 
     profileExist(_addr: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    profileGuild(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     profileId(_addr: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     profileIds(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -754,11 +706,6 @@ export interface Profile extends BaseContract {
 
     profileExist(
       _addr: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    profileGuild(
-      arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

@@ -35,6 +35,15 @@ describe("Sapphire", function () {
         expect(await guild.totalSupply()).to.be.equal(2);
     })
 
+    it("check guild name length", async function () {
+        await guild.connect(manager).grantRole(guild.MANAGER_ROLE(), guildAction.address);
+
+        await expect(guildAction.presaleClaimGuild("a", { value: parseEther("1") })).to.be.revertedWith('guild name length invalid');
+
+        await expect(guildAction.presaleClaimGuild("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", { value: parseEther("1") })).to.be.revertedWith('guild name length invalid');
+
+
+    })
     it("claim guild with same name", async function () {
         await expect(guildAction.connect(playerA).presaleClaimGuild("bbb", { value: parseEther("1") })).to.be.revertedWith('name taken');
     })

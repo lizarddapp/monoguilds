@@ -44,9 +44,9 @@ contract GuildAction is GM, PausableUpgradeable {
     uint256 public guildPrice;
     // uint256 public constant LEAVE_GUILD_COOLDOWN = 259200; /**  3 days */
 
-    event CreateGuild(uint256 indexed tokenId, address indexed to, string name);
-    event JoinGuild(uint256 indexed profileId, uint256 indexed guildId, uint256 joinAt);
-    event LeaveGuild(uint256 indexed profileId, uint256 indexed guildId, uint256 leaveAt);
+    event CreateGuild(uint256 indexed guildId, address indexed to, string name);
+    event JoinGuildEvent(uint256 indexed profileId, uint256 indexed guildId, uint256 joinAt);
+    event LeaveGuildEvent(uint256 indexed profileId, uint256 indexed guildId, uint256 leaveAt);
 
     // struct ClaimableAddressInfo {
     //     uint256 guildId;
@@ -77,6 +77,7 @@ contract GuildAction is GM, PausableUpgradeable {
     }
 
     function nameTaken(string memory name) public view returns (bool taken) {
+        require(bytes(name).length > 1 && bytes(name).length < 32, "guild name length invalid");
         return (nameToIndex[name] > 0);
     }
 
@@ -134,7 +135,7 @@ contract GuildAction is GM, PausableUpgradeable {
         jgi.joined = true;
         jgi.joinedAt = block.timestamp;
         gm.push(profileId);
-        emit JoinGuild(profileId, _guildId, block.timestamp);
+        emit JoinGuildEvent(profileId, _guildId, block.timestamp);
     }
 
     function leaveGuild(uint256 _guildId) external whenJoinGuildNotPaused {
@@ -147,7 +148,7 @@ contract GuildAction is GM, PausableUpgradeable {
         jgi.guildId = 0;
 
         remove(gm, profileId);
-        emit LeaveGuild(profileId, _guildId, block.timestamp);
+        emit LeaveGuildEvent(profileId, _guildId, block.timestamp);
     }
 
     function remove(uint256[] storage _arr, uint256 _value) private returns (uint256[] memory) {
